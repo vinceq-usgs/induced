@@ -22,8 +22,8 @@ import re
 import copy
 import datetime
 
-eventsfile='allevents.json' # All DYFI events
-collatedfile='collated.geojson' # List of events in IDB
+eventsfile='input/dyfi.events.json' # All DYFI events
+collatedfile='output/events.collated.geojson' # List of events in IDB
 inducedfile='emm_c2_OK_KS.txt'
 
 def getEventList(outfile):
