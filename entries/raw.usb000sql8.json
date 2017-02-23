@@ -1,0 +1,43 @@
+[
+    {
+        "dist": 267.8,
+        "location": "73501",
+        "city": "Lawton",
+        "geo_source": "raw",
+        "felt": "0 no",
+        "time_now": "2014-10-25T15:26:58",
+        "version": "1.2",
+        "subid": 3968887,
+        "zip": "73501",
+        "confidence": "1",
+        "admin_region": "OK",
+        "cityid": 73501,
+        "region": "cus",
+        "orig_id": "usb000sqf0",
+        "exttable": "extended_2014",
+        "citydb": "zip_2008",
+        "longitude": -98.4,
+        "eventid": "usb000sql8",
+        "country": "United States of America",
+        "latitude": 34.6,
+        "user_cdi": "1.0"
+    },
+    {
+        "dist": 267.8,
+        "geo_source": "raw",
+        "felt": "0 no",
+        "time_now": "2014-10-25T15:28:55",
+        "exttable": "extended_2014",
+        "subid": 3968888,
+        "confidence": "1",
+        "orig_id": "usb000sqey",
+        "cityid": 73501,
+        "region": "cus",
+        "user_cdi": "1.0",
+        "version": "1.2",
+        "citydb": "zip_2008",
+        "eventid": "usb000sql8",
+        "latitude": 34.6,
+        "longitude": -98.4
+    }
+]

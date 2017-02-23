@@ -1,0 +1,36 @@
+[
+    {
+        "dist": 6.2,
+        "geo_source": "raw",
+        "felt": "1",
+        "time_now": "2016-06-07T23:46:42",
+        "exttable": "extended_2016",
+        "subid": 4333316,
+        "cityid": 73020,
+        "region": "cus",
+        "longitude": -97.2929,
+        "orig_id": "unknown",
+        "citydb": "zip_2008",
+        "eventid": "us200062nu",
+        "usertime": "6/6/2016 6:42pm",
+        "latitude": 35.4609,
+        "user_cdi": "2.0"
+    },
+    {
+        "dist": 8.5,
+        "geo_source": "raw",
+        "felt": "1",
+        "time_now": "2016-06-07T23:48:56",
+        "exttable": "extended_2016",
+        "subid": 4333317,
+        "cityid": 73020,
+        "region": "cus",
+        "longitude": -97.2619,
+        "orig_id": "unknown",
+        "citydb": "zip_2008",
+        "eventid": "us200062nu",
+        "usertime": "6/7/2016 6:42pm",
+        "latitude": 35.4198,
+        "user_cdi": "2.0"
+    }
+]

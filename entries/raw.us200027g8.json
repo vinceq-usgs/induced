@@ -1,0 +1,40 @@
+[
+    {
+        "dist": 149.7,
+        "geo_source": "raw",
+        "felt": "1",
+        "time_now": "2015-04-17T19:20:54",
+        "exttable": "extended_2015",
+        "subid": 4052059,
+        "confidence": "4",
+        "orig_id": "unknown",
+        "cityid": 67202,
+        "region": "cus",
+        "user_cdi": "2.0",
+        "version": "1.3",
+        "citydb": "zip_2008",
+        "eventid": "us200027g8",
+        "usertime": "5 minutes ago",
+        "latitude": 37.6897,
+        "longitude": -97.3355
+    },
+    {
+        "dist": 66.8,
+        "geo_source": "raw",
+        "felt": "1",
+        "time_now": "2015-04-17T19:42:54",
+        "exttable": "extended_2015",
+        "subid": 4052068,
+        "confidence": "4",
+        "orig_id": "unknown",
+        "cityid": 73044,
+        "region": "cus",
+        "user_cdi": "2.0",
+        "version": "1.3",
+        "citydb": "zip_2008",
+        "eventid": "us200027g8",
+        "usertime": "4/17/15 2:02pm",
+        "latitude": 35.8195,
+        "longitude": -97.4432
+    }
+]

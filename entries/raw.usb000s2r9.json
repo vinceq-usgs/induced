@@ -1,0 +1,26 @@
+[
+    {
+        "time_now": "2014-08-14T19:32:10",
+        "exttable": "extended_2014",
+        "subid": 3894657,
+        "region": "cus",
+        "longitude": -97.0152,
+        "country": "United States of America",
+        "latitude": 36.2976,
+        "eventid": "usb000s2r9",
+        "dist": 11.9,
+        "location": "73061",
+        "city": "Morrison",
+        "felt": "1 yes",
+        "version": "1.2",
+        "zip": "73061",
+        "confidence": "5",
+        "admin_region": "OK",
+        "cityid": 73061,
+        "orig_id": "unknown",
+        "citydb": "zip_2008",
+        "usertime": "2pm cst.",
+        "geo_source": "raw",
+        "user_cdi": "2.0"
+    }
+]

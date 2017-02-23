@@ -1,0 +1,33 @@
+[
+    {
+        "shelf": "0",
+        "picture": "0",
+        "reaction": "1",
+        "time_now": "2014-04-16T06:45:43",
+        "heavy_appliance": "0",
+        "exttable": "extended_2014",
+        "subid": 3839894,
+        "motion": "1",
+        "asleep": "no",
+        "stand": "0",
+        "citydb": "zip_2008",
+        "longitude": -97.4649,
+        "creak": "1 slight",
+        "d_text": "_none",
+        "latitude": 35.6172,
+        "eventid": "usb000pm07",
+        "dist": 59.4,
+        "walls": "0",
+        "felt": "0 no",
+        "version": "1.2",
+        "duration": "1",
+        "cityid": 73013,
+        "confidence": "4",
+        "geo_source": "raw",
+        "orig_id": "usb000pm07",
+        "sway": "0",
+        "region": "cus",
+        "furniture": "0",
+        "user_cdi": "2.0"
+    }
+]
