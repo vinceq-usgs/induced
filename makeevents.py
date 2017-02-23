@@ -13,10 +13,6 @@ Run with the -help flag to see options.
 """
 
 
-access
-, if not run in the
-DYFI home environment. 
- 
 import os.path
 import json
 #import subprocess
@@ -26,8 +22,8 @@ import re
 import copy
 import datetime
 
-eventsfile='allevents.json'
-collatedfile='collated.geojson'
+eventsfile='allevents.json' # All DYFI events
+collatedfile='collated.geojson' # List of events in IDB
 inducedfile='emm_c2_OK_KS.txt'
 
 def getEventList(outfile):
@@ -40,7 +36,7 @@ def getEventList(outfile):
     except:
         from DyfiMysql import Db
         db=Db()
-        text='lat>=33.6 and lat<=37.6 and lon>=-99.5 and lon<=-95.6 and eventdatetime>="2006-01-01" and eventdatetime<="2016-04-01" and nresponses>1 and (invisible=0 or invisible is null)'
+        text='lat>=33.6 and lat<=37.6 and lon>=-99.5 and lon<=-95.6 and eventdatetime>="2001-01-01" and eventdatetime<="2016-12-01" and nresponses>1 and (invisible=0 or invisible is null)'
         results=db.query(table='event',text=text)
 
         with open(outfile,'w') as f:
