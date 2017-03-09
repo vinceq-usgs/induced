@@ -1,13 +1,15 @@
-#! /bin/env python3
+#! /usr/bin/env python3
 
-"""Create the DYFI Induced Events Database for the Oklahoma-Kansas region.
+"""
+makeAggregated.py
 
-This script will recreate the DYFI Induced Events Database. Note that it needs 
-to run in the DYFI home environment and access the DYFI database
-for the DYFI event and entry tables. If you are not a DYFI operator,
-use the included flatfiles dyfi.events.json and dyfi.entries.json
-which are copies of the DYFI database (stripped of personal identity
-information).
+This script will recreate the aggregated intensity portion of the DYFI Induced Events Database. 
+
+This script has two modes:
+
+1. You can download the aggregated files from a list of events (created via makeEvents.py) from the ComCat online catalog.
+
+2. If you have the individual entry files (created via makeEntries.py or downloaded from the DYFI operator), you can use those files to compute the aggregated intensities.
 
 Run with the -help flag to see options.
 """

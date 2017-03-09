@@ -1,17 +1,12 @@
 #! /bin/env python3
 
-"""Create the DYFI Induced Events Database for the Oklahoma-Kansas region.
+"""
+makeEvents.py
 
-This script will recreate the DYFI Induced Events Database. Note that it needs 
-to run in the DYFI home environment and access the DYFI database
-for the DYFI event and entry tables. If you are not a DYFI operator,
-use the included flatfiles dyfi.events.json and dyfi.entries.json
-which are copies of the DYFI database (stripped of personal identity
-information).
+Create the event portion of the DYFI Induced Events Database for the Oklahoma-Kansas region. You can specify a different polygon file and date range to make your own dataset.
 
 Run with the -help flag to see options.
 """
-
 
 import os.path
 import json
