@@ -220,18 +220,19 @@ def splitDates(start,end):
     return (startyear,endyear)
 
   dates=[]
-  for year in range(startyear,endyear):
+  for year in range(startyear,endyear+1):
     if year==startyear:
-      thisStart=start
+      thisStart=start+'T00:00:00'
     else:
       thisStart=str(year)+'-01-01T00:00:00'
 
     if year==endyear:
-      thisEnd=end
+      thisEnd=end+'T00:00:00'
     else:
       thisEnd=str(year+1)+'-01-01T00:00:00'
 
-    dates.append((thisStart,thisEnd))
+    if thisStart!=thisEnd:
+      dates.append((thisStart,thisEnd))
 
   return dates
 
