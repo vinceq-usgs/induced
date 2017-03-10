@@ -40,7 +40,7 @@ if __name__=='__main__':
     help='Output file, default ../output/events.geojson')
 
   parser.add_argument('--input',type=str,
-    default='../input/dyfi.events.json',
+    default='../input/dyfi.catalog.geojson',
     help='Specify JSON file of input events. If this file does not exist, populate it using ComCat')
 
   parser.add_argument('--polyfile', type=str,
