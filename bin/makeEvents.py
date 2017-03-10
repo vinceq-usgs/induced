@@ -1,56 +1,98 @@
-#! /bin/env python3
+#! /usr/bin/env python3
 
 """
 makeEvents.py
 
 Create the event portion of the DYFI Induced Events Database for the Oklahoma-Kansas region. You can specify a different polygon file and date range to make your own dataset.
 
-Run with the -help flag to see options.
+By default, this will download data from a copy of the 
+DYFI catalog, included in this repository. You may also specify another
+list of events. If that file does not exist, this script will attempt
+to create it using ComCat.
+
+Run with the -h flag to see options.
 """
 
 import os.path
 import json
-#import subprocess
-import os # Deprecated, redo using subprocess instead
 import shutil
 import re
 import copy
 import datetime
+import argparse
 
-eventsfile='input/dyfi.events.json' # All DYFI events
-collatedfile='output/events.collated.geojson' # List of events in IDB
-inducedfile='emm_c2_OK_KS.txt'
+from modules.comcat import Events,Event,Product
 
-def getEventList(outfile):
-    results=None
-    try:
-        f=open(outfile,'r')
-        results=json.load(f)
-        print('Loaded',outfile,'with',len(results),'results.')
-        
-    except:
-        from DyfiMysql import Db
-        db=Db()
-        text='lat>=33.6 and lat<=37.6 and lon>=-99.5 and lon<=-95.6 and eventdatetime>="2001-01-01" and eventdatetime<="2016-12-01" and nresponses>1 and (invisible=0 or invisible is null)'
-        results=db.query(table='event',text=text)
+def getEventFile(infile):
+  print('Opening file',infile)
+  f=open(infile,'r')
+  results=json.load(f)
+  print('Loaded',outfile,'with',len(results),'results.')
+  return results
 
-        with open(outfile,'w') as f:
-            print('Writing to',outfile)
 
-            f.write(json.dumps(results,indent=4,default=Db.serialize_datetime))
-            print('Now need to filter this dataset via polygon.')
-            exit()
+if __name__=='__main__':
 
-    byyear={}
-    for event in results:
-        year=event['eventdatetime'][0:4]
-        event['year']=year
-        if year in byyear:
-            byyear[year].append(event)
-        else:
-            byyear[year]=[ event ]
+  parser=argparse.ArgumentParser(description='Create a DYFI event dataset.')
 
-    return byyear
+  parser.add_argument('--output', type=str,
+    default='../output/events.geojson',
+    help='Output file, default ../output/events.geojson')
+
+  parser.add_argument('--input',type=str,
+    default='../input/dyfi.events.json',
+    help='Specify JSON file of input events. If this file does not exist, populate it using ComCat')
+
+  parser.add_argument('--polyfile', type=str,
+    default='../input/polygon_is_14_ok_comb.txt',
+    help='Polygon spatial boundary file')
+
+  parser.add_argument('--start', type=str,
+    default='2001-01-01',
+    help='Start date, default 2001-01-01')
+
+  parser.add_argument('--end', type=str,
+    default='2017-01-01',
+    help='End date, default 2017-01-01')
+
+  parser.add_argument('--collate',type=str,
+    default='../input/emm_c2_OK_KS.txt',
+    help='Collate the results with another induced events file')
+
+  args=parser.parse_args()
+  inputfile=args.input 
+  outputfile=args.output
+  startdate=args.start
+  enddate=args.end
+ 
+  # First, get the input list
+
+  if not os.path.isfile(inputfile):
+    print('Reading ComCat catalog.')
+    input=Events(startdate,enddate).events
+    print('Got',len(input),'events.')
+
+    print('Creating',inputfile)
+    with open(inputfile,'w') as f:
+      json.dump(input,f,indent=2)
+    exit()
+
+  else:
+    input=getEventFile(inputfile)
+
+  if not input:
+    print('Could not get any events from',inputfile)
+    exit()
+
+  # Then, filter the list in space and time
+
+  # Now print output
+
+  filteredresults=[]
+  with open(outputfile,'w') as f:
+    json.dumps(filteredresults)  
+
+  exit()
 
 
 def getInducedList(inducedfile):
@@ -112,8 +154,8 @@ def checkmag(inducedEvent,matchEvent):
 
 
 if __name__=='__main__':
-
-    eventlist=getEventList(eventsfile)
+    exit()
+    eventlist=getEventFile(eventsfile)
     inducedlist=getInducedList(inducedfile)
 
     nline=0
