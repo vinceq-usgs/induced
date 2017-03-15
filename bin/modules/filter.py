@@ -1,13 +1,13 @@
 from matplotlib.path import Path
 import numpy as np
-from datetime import datetime
+import datetime
 
 def TimeFilter(start,end):
-  tStart=datetime.strptime(start,'%Y-%m-%d')
-  tEnd=datetime.strptime(end,'%Y-%m-%d')
+  tStart=datetime.datetime.strptime(start,'%Y-%m-%d')
+  tEnd=datetime.datetime.strptime(end,'%Y-%m-%d')
   
   def filter(timestring):
-    tEvent=datetime.fromtimestamp(int(timestring)/1000)
+    tEvent=datetime.datetime.fromtimestamp(int(timestring)/1000)
     return tStart<=tEvent and tEvent<=tEnd
 
   return filter

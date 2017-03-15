@@ -32,7 +32,8 @@ class Comcat:
           return
 
         self.contents=contents
-        self.events=contents['features']
+        if 'features' in contents:
+          self.events=contents['features']
 
 
 class Events:
@@ -83,6 +84,7 @@ class Event:
 
     def __init__(self,evid,includeSuperseded=False):
         query=Event.QUERY.replace('[EVENTID]',evid)
+        self.products=[]
         if includeSuperseded:
             superseded='true'
         else:
@@ -90,16 +92,23 @@ class Event:
             
         query=query.replace('[SUPERCEDED]',superseded)
         contents=Comcat(query).contents
-        if contents:
-            try:
-                contents=json.loads(contents)
-            except:
-                print('Possible malformed contents from fdsnws')
-                print(contents)
-                return
-            
-        self.contents=contents
-        self.products=[]
+        self.contents=contents 
+        if 'products' in contents['properties']:
+          self.products=contents['properties']['products']
+
+
+    def getProductList(self,type):
+      if type not in self.products:
+        print('Type',type,'not found')
+        return
+
+      products=self.products[type]
+      print('There are',len(products),'products of type',type)
+      if(len(products)>1):
+        print(json.dumps(products,indent=2))
+        exit()
+
+      return list(products[0]['contents'].keys())
 
 
     def felt(self):
@@ -108,39 +117,8 @@ class Event:
             return p['felt']
         except:
             return 0
-        
-        
-    def DYFIProducts(self,auth=False):
-
-        if not self.contents:
-            return
-        
-        if len(self.products)>0:
-            products=self.products
-            
-        else:
-            products=[]
-            try:
-                rawproducts=self.contents['properties']['products']['dyfi']
-                for prod in rawproducts:
-                    products.append(Product(prod))
-            except:
-                print('No DYFI found for this event.')
-                return
-                
-            self.products=products
-
-        if auth:
-            if len(products)>1:
-                print("Event.DYFIProducts: %s products found" % (len(products)))
-                for prod in products:
-                    prod.parse()
-                return products
-            else:
-                return products[0]
-        else:
-            return products
-    
+       
+ 
 class Product:
     
     def __init__(self,rawdata):

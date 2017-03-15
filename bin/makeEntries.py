@@ -5,7 +5,7 @@ makeEntries.py
 
 This script will recreate the individual entries of the DYFI Induced Events Database. 
 
-You must run in the DYFI home environment and access the DYFI database. If you are not the DYFI operator, DYFI individual entries contain personal information and are protected by privacy laws. They cannot be downloaded automatically. 
+You must run in the DYFI home environment and access the DYFI database. If you are not the DYFI operator, DYFI individual entries contain private personal information and cannot be downloaded automatically. 
 
 Instead, you can download the aggregated dataset instead using:
 
@@ -13,7 +13,6 @@ makeAggregated.py
 
 Run with the -help flag to see options.
 """
-
 
 import os.path
 import json

@@ -20,11 +20,12 @@ Input datasets
 
 These input datasets can be found in the input/ directory.
 
+- dyfi.catalog.json: All events from ComCat with DYFI products from 2001 to 2016. GeoJSON format; each feature is an event.
+
 - polygon_is_14_ok_comb.txt: Area polygon for the Kansas-Oklahoma study area, from Moschetti. Space-delimited text file.
 
 - emm_c2_OK_KS.txt: List of event origins used for the ongoing study, from Moschetti(1). Tab-delimited text file.
 
-- dyfi.events.geojson: Origin information for the DYFI induced event list. These include events matched to the above dataset, and those included in the area polygon. GeoJSON format.
 
 Aggregated output
 ==============
@@ -56,3 +57,9 @@ This software is preliminary or provisional and is subject to revision. It is be
 =======
 # induced
 DYFI Induced Events Database
+
+# TODO 
+
+makeInducedInternal
+
+

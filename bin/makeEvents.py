@@ -22,12 +22,25 @@ import datetime
 import argparse
 
 from modules.comcat import Events,Event,Product
+from modules.filter import TimeFilter,SpaceFilter
+from modules.collate import readCollateFile,collateEvents
 
 def getEventFile(infile):
+
+  ACCEPTED_KEYS=['eventid','mag','max_intensity','nresponses','lat','lon','loc','depth','eventlocaltime','eventdatetime']
+
   print('Opening file',infile)
   f=open(infile,'r')
   results=json.load(f)
-  print('Loaded',outfile,'with',len(results),'results.')
+
+  for event in results['features']:
+    p=event['properties']
+    allkeys=list(p.keys())
+    for key in allkeys:
+      if key not in ACCEPTED_KEYS:
+        p.pop(key, None)
+
+  print('Loaded',infile,'with',len(results['features']),'results.')
   return results
 
 
@@ -57,16 +70,15 @@ if __name__=='__main__':
 
   parser.add_argument('--collate',type=str,
     default='../input/emm_c2_OK_KS.txt',
-    help='Collate the results with another induced events file')
+    help='none, or collate the results with another induced events file')
 
   args=parser.parse_args()
-  inputfile=args.input 
-  outputfile=args.output
   startdate=args.start
   enddate=args.end
  
   # First, get the input list
 
+  inputfile=args.input 
   if not os.path.isfile(inputfile):
     print('Reading ComCat catalog.')
     input=Events(startdate,enddate).events
@@ -75,7 +87,6 @@ if __name__=='__main__':
     print('Creating',inputfile)
     with open(inputfile,'w') as f:
       json.dump(input,f,indent=2)
-    exit()
 
   else:
     input=getEventFile(inputfile)
@@ -86,202 +97,54 @@ if __name__=='__main__':
 
   # Then, filter the list in space and time
 
-  # Now print output
+  polyfile=args.polyfile
+  tFilter=TimeFilter(startdate,enddate)
+  sFilter=SpaceFilter(polyfile)
 
   filteredresults=[]
+  for event in input['features']:
+    if not sFilter(event['geometry']['coordinates']):
+      continue
+
+    p=event['properties']
+    if 'time' in p:
+      eventTime=p['time']
+    elif 'eventdatetime' in p:
+      eventTime=datetime.datetime.strptime(p['eventdatetime'],'%Y-%m-%dT%H:%M:%S').timestamp()
+      eventTime=int(eventTime)*1000
+      p['time']=eventTime
+    else:
+      print('Could not find event time:')
+      print(event)
+      exit()
+
+    if not tFilter(eventTime):
+      continue
+
+    filteredresults.append(event)
+  print('Got',len(filteredresults),'events passed filter.') 
+
+  # Then, collate with induced file
+
+  collatefile=args.collate
+  if collatefile!='none': 
+    collatedata=readCollateFile(collatefile)
+    collateEvents(filteredresults,collatedata)
+
+  # Turn into proper geojson
+
+  geojsonresults={
+    'type':'FeatureCollection',
+    'features':filteredresults
+  }
+
+  # Then, print output
+
+  outputfile=args.output
+  print('Output file',outputfile)
   with open(outputfile,'w') as f:
-    json.dumps(filteredresults)  
+    json.dump(geojsonresults,f,indent=2)  
 
   exit()
-
-
-def getInducedList(inducedfile):
-    results=[]
-    with open(inducedfile,'r') as f:
-        for line in f:
-            results.append(line)
-
-    print('Got',len(results),'lines from',inducedfile)
-    return results
-
-
-def processLine(line):
-    bits=re.split('\s+',line)
-    lineFormat=('mag','lon','lat','depth','year','month','day',
-            'hour','minute','second')
-
-    eventData={} 
-    c=0
-    for key in lineFormat:
-        if re.match('year|month|day|hour|minute',key):
-            val=int(bits[c])
-        elif key=='second':
-            val=int(float(bits[c]))
-        else:
-            val=float(bits[c])
-        eventData[key]=val
-        c+=1
-
-    return eventData
-
-
-def checkdate(inducedEvent,eventlist):
-
-    i=inducedEvent
-    thistime=datetime.datetime(i['year'],i['month'],i['day'],
-            i['hour'],i['minute'],int(i['second']),0)
-
-    thisyear=str(int(inducedEvent['year']))
-    events=eventlist[thisyear]
-
-    for event in events:
-        evdate=event['eventdatetime']
-        evtime=datetime.datetime.strptime(evdate,'%Y-%m-%dT%H:%M:%S')
-        diff=abs(evtime-thistime).total_seconds()
-        if diff<5:
-            return event
-        if diff<120:
-            print('Possible match, diff=',diff)
-
-    return None
-
-def checkmag(inducedEvent,matchEvent):
-    magdiff=abs(inducedEvent['mag']-matchEvent['mag'])
-    if magdiff<0.5:
-        return True
-    else:
-        return False
-
-
-if __name__=='__main__':
-    exit()
-    eventlist=getEventFile(eventsfile)
-    inducedlist=getInducedList(inducedfile)
-
-    nline=0
-    nmatches=0
-    allmatches={}
-
-    for line in inducedlist:
-        nline+=1
-        inducedevent=processLine(line)
-
-        # Now see if nline matches any events
-
-        matchevent=checkdate(inducedevent,eventlist)
-        matchmag=None
-        if matchevent:
-            matchmag=checkmag(inducedevent,matchevent)
-
-        if matchevent and matchmag:
-
-            print('Got match:',matchevent['eventid'],matchevent['eventdatetime'])
-            nmatches+=1
-            print('Got %i / %i matches so far.' % (nmatches,nline))
-            matchevent['catalog']=line
-            matchevent['catalogline']=nline
-            allmatches[nline]=matchevent
-
-    print('Writing',collatedfile)
-    with open(collatedfile,'w') as f:
-        f.write(json.dumps(allmatches,indent=4))
-
-    exit()
-
-# Make sure datafiles exist
-
-    counter=0
-    eventsfiletemplate='geocoded/%s_dyfi_geo10km.json'
-    for event in eventlist:
-        counter+=1
-        evid=event['eventid']
-        eventsfile=eventsfiletemplate % (evid)
-
-        if os.path.isfile(eventsfile):
-            # Output already exists, skipping
-            continue
-
-        else:
-            print(counter,': Rerunning',evid)
-            rerunEvent(evid,eventsfile)
-
-    # Now load and collate
-
-    locations={}
-    counter=0
-    for event in eventlist:
-        counter+=1
-        if counter%1000==0:
-            print('%s: Collating %s (%s locs so far).' %
-                    (counter,evid,len(locations)))
-
-        evid=event['eventid']
-        eventsfile=eventsfiletemplate % (evid)
-        with open(eventsfile,'r') as f:
-            locs=json.load(f)
-
-        for feature in locs['features']:
-            p=feature['properties']
-            (utmcoord,name)=re.split('<br>',p['name'])
-
-            # Populate event data
-
-            eventdata={
-                    'nresp':p['nresp'],
-                    'cdi':p['cdi']
-                    }
-            for key in ('eventid','eventdatetime','mag',
-                    'lat','lon'):
-                eventdata[key]=event[key]
-
-            if utmcoord not in locations:
-                locations[utmcoord]={
-                        'type':'Feature',
-                        'geometry':copy.deepcopy(feature['geometry']),
-                        'id':utmcoord,
-                        'properties':{
-                            'name':name,
-                            'events':[]
-                            }
-                        }
-
-            locations[utmcoord]['properties']['events'].append(eventdata)
-
-    # At this point, all locations in all events are in locations dict
-    # Now find nresponses and maxcdi
-
-    print('Collating entry data.')
-    for location in locations.values():
-        maxcdi=None
-        maxmag=None
-        totalnresp=0
-        numevents=0
-
-        p=location['properties']
-        for event in p['events']:
-            totalnresp+=event['nresp']
-            numevents+=1
-            if not maxcdi or maxcdi<event['cdi']:
-                maxcdi=event['cdi']
-            if not maxmag or maxmag<event['mag']:
-                maxmag=event['mag']
-
-        p['maxcdi']=maxcdi
-        p['totalresp']=totalnresp
-        p['maxmag']=maxmag
-        p['numevents']=numevents
-
-    # Now turn into FeatureCollection and export
-
-    collated={
-            'type':'FeatureCollection',
-            'features':locations
-            }
-
-    print('Writing',collatedfile)
-    with open(collatedfile,'w') as f:
-        f.write(json.dumps(collated,indent=4))
-
-
 
 
