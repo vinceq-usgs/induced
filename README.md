@@ -20,46 +20,39 @@ Input datasets
 
 These input datasets can be found in the input/ directory.
 
-- dyfi.catalog.json: All events from ComCat with DYFI products from 2001 to 2016. GeoJSON format; each feature is an event.
+- dyfi.catalog.json: All events from ComCat with DYFI products from 2001 to 2016. GeoJSON format; each feature is an event located at the epicenter.
 
 - polygon_is_14_ok_comb.txt: Area polygon for the Kansas-Oklahoma study area, from Moschetti. Space-delimited text file.
 
-- emm_c2_OK_KS.txt: List of event origins used for the ongoing study, from Moschetti(1). Tab-delimited text file.
+- emm_c2_OK_KS.txt: List of event origins used for the ongoing study, from Moschetti(1) and used to collate with the DYFI event list. Tab-delimited text file.
 
+Event list
+==========
+
+The file 'output/events.geojson' contains the set of all events within the Kansas-Oklahoma area that comprise the DYFI Induced Dataset. Each GeoJSON entry contains origin data (epicentral coordinates, origin time, and magnitude) and the line that corresponds to the Moschetti line, if found. GeoJSON format.
+ 
 
 Aggregated output
 ==============
 
-For each event in the DYFI event origin list, we geocode the individual entries and aggregate them into 1 km and 10 km UTM boxes to compute the resulting intensities. These files can be found in the aggregated_10km/ and aggregated_1km/ directories. Each directory contains one file per event. GeoJSON format.
+For each event in the DYFI event origin list, we geocode the individual entries and aggregate them into 1 km and 10 km UTM boxes to compute the resulting intensities. These files can be found in the following directories:
+
+- aggregated_10km/ 
+- aggregated_1km/ 
+
+Each directory contains one TAR'd, GZip'd file that, when uncompressed, expands to one file per event in the DYFI Induced Catalog. Each event file is named with the event ID, in GeoJSON format.
 
 Individual entry data
 ==========
 
-DYFI individual observations. These are DYFI questionnaires submitted by individual users. User comments and personal identity information have been removed, and geocoded locations degraded to 1km precision, to protect privacy. GeoJSON format.
+The 'entries' directory contains the file raw.json.tgz. This is a TAR'd, GZip'd file that, when uncompressed, expands to one raw file per event in the DYFI Induced Catalog. Each file is a compilation of the results of the DYFI questionnaires for each event, submitted by individual users. User comments and personal identity information have been removed, and geocoded locations degraded to 1km precision, to protect privacy. GeoJSON format.
 
 Scripts
 =======
-
-
-Observation selection criteria
----------
-
-
-Notes on preliminary version
------------------------
-
-Output is a GeoJSON FeatureCollection file. 
 
 LICENSE
 -------
 This software is preliminary or provisional and is subject to revision. It is being provided to meet the need for timely best science. The software has not received final approval by the U.S. Geological Survey (USGS). No warranty, expressed or implied, is made by the USGS or the U.S. Government as to the functionality of the software and related material nor shall the fact of release constitute any such warranty. The software is provided on the condition that neither the USGS nor the U.S. Government shall be held liable for any damages resulting from the authorized or unauthorized use of the software.
 
-=======
-# induced
-DYFI Induced Events Database
-
-# TODO 
-
-makeInducedInternal
 
 
