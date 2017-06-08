@@ -31,7 +31,7 @@ eventsfile='data/allevents.json'
 allentriesfile='entries.json'
 entryfiletemplate='entries/raw.%s.json'
 
-PRECISION=4
+PRECISION=2
 
 db=None
 
