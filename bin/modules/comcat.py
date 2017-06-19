@@ -1,4 +1,12 @@
-#! //anaconda/bin/python3
+""" 
+
+This code is a simplified version of the libcomcat library,
+a Python interface to the USGS ComCat earthquake catalog. Among
+other modifications, it only looks for events with DYFI products.
+
+See https://github.com/usgs/libcomcat for details.
+
+"""
 
 import json
 import urllib.request
@@ -39,7 +47,7 @@ class Comcat:
 class Events:
 
     QUERY='format=geojson&producttype=dyfi&starttime=[START]&endtime=[END]'
-    EVENTPROPS = ['net','title','type','status','time','mag','cdi','updated','detail'] 
+    EVENTPROPS = ['net','title','type','status','time','mag','cdi','felt','updated','detail'] 
 
     def __init__(self,startdate,enddate):
 
