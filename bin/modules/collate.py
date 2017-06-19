@@ -1,8 +1,31 @@
+'''
+collate.py
+
+A collection of functions to read and collate the relocated events
+data provided by Moschetti et al. For the DYFI Induced Database,
+this finds DYFI events (with DYFI intensities) that also exist 
+in the Moschetti event list (which have instrumental data).
+
+'''
+
 import re
 import datetime
 import geopy.distance
 
+# The following values are used to see if two events are identical
+
+ALLOWED_MAGDIFF=0.2   # in magnitude units
+ALLOWED_TIMEDIFF=5    # in seconds
+ALLOWED_DISTDIFF=5.0  # in kilometers
+
 def readCollateFile(inducedfile):
+    """
+
+    Read the relocated event file provided by Moschetti.
+    You may have to edit this function if the file format changes.
+
+    """
+
     LINEFORMAT=('mag','lon','lat','depth','year','month','day',
         'hour','minute','second')
     collatedata=[]
@@ -27,6 +50,12 @@ def readCollateFile(inducedfile):
 
 
 def collateEvents(events,tocollate):
+    """
+
+      Attempt to collate events between two datasets.
+
+    """
+
     print('Attempting to locate',len(tocollate),'events in collate list.')
 
     c=0 
@@ -60,19 +89,23 @@ def collateEvents(events,tocollate):
 
 
 def checkmag(event,trymag):
+    """ Compare if two magnitudes are within the allowed diff """
+
     emag=event['properties']['mag']
     magdiff=abs(float(emag)-trymag)
-    if magdiff<0.5:
+    if magdiff<=ALLOWED_MAGDIFF:
         return True
     else:
         return False
 
 
 def checkstamp(event,trystamp):
+    """ Compare if two timestamps are within the allowed diff """
+
     eventstamp=int(int(event['properties']['time'])/1000)
     diff=abs(eventstamp-trystamp)
 
-    if diff<=5:
+    if diff<=ALLOWED_TIMEDIFF:
         return True
     if diff<120:
         print('Possible match, diff=',diff)
@@ -81,9 +114,10 @@ def checkstamp(event,trystamp):
 
 
 def checkloc(event,lat,lon):
+  """ Compare if two origins are close enough """
 
   (elon,elat,depth)=event['geometry']['coordinates']
   dist=geopy.distance.great_circle((lat,lon),(elat,elon)).kilometers
-  return dist<5.0
+  return dist<=ALLOWED_DISTDIFF
 
 
