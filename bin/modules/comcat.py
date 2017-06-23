@@ -15,6 +15,7 @@ import re
 import datetime 
 
 class Comcat:
+    """ Query Comcat online server and turn results into JSON """
 
     SERVER = 'earthquake' #comcat server name
     URLBASE = 'http://[SERVER].usgs.gov/fdsnws/event/1/query?'.replace('[SERVER]',SERVER)
@@ -48,8 +49,8 @@ class Comcat:
 
 
 class Events:
+    """ Query Comcat server for list events with given start/end dates """
 
-#    QUERY='format=quakeml&producttype=dyfi&starttime=[START]&endtime=[END]'
     EVENTPROPS = ['net','title','type','status','time','mag','cdi','felt','updated','detail'] 
 
     def __init__(self,startdate,enddate):
