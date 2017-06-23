@@ -14,8 +14,8 @@ import geopy.distance
 
 # The following values are used to see if two events are identical
 
-ALLOWED_MAGDIFF=0.2   # in magnitude units
-ALLOWED_TIMEDIFF=5    # in seconds
+ALLOWED_MAGDIFF=0.5   # in magnitude units
+ALLOWED_TIMEDIFF=30   # in seconds
 ALLOWED_DISTDIFF=5.0  # in kilometers
 
 def readCollateFile(inducedfile):
@@ -29,30 +29,35 @@ def readCollateFile(inducedfile):
     LINEFORMAT=('mag','lon','lat','depth','year','month','day',
         'hour','minute','second')
     collatedata=[]
-    with open(inducedfile,'r') as f:
-        for line in f:
-            eventData={'line':line}
-            vals=re.split('\s+',line)
-            for key in LINEFORMAT:
-                val=vals.pop(0)
-                if re.match('year|month|day|hour|minute',key):
-                  val=int(val)
-                elif key=='second':
-                  val=int(float(val))
-                else:
-                  val=float(val)
-                eventData[key]=val
+    if isinstance(inducedfile,str):
+      f=open(inducedfile,'r')
+    else:
+      f=inducedfile
+      for line in f:
+        eventData={'line':line}
+        vals=re.split('\s+',line)
+        for key in LINEFORMAT:
+          val=vals.pop(0)
+          if re.match('year|month|day|hour|minute',key):
+            val=int(val)
+          elif key=='second':
+            val=int(float(val))
+          else:
+            val=float(val)
+          eventData[key]=val
 
-            collatedata.append(eventData)
+        collatedata.append(eventData)
 
-    print('Got',len(collatedata),'lines from',inducedfile)
     return collatedata
 
 
 def collateEvents(events,tocollate):
     """
 
-      Attempt to collate events between two datasets.
+      Attempt to collate events between two datasets. The first dataset
+      should be a GeoJSON dict. The second should be the output of the
+      readCollateFile function. Any events found in the second list 
+      will be added as a 'line' property to the event feature list.
 
     """
 
@@ -61,23 +66,27 @@ def collateEvents(events,tocollate):
     c=0 
     ncollated=0
     for tryevent in tocollate:
-      trymag=float(tryevent['mag'])
-      trystamp=datetime.datetime(tryevent['year'],tryevent['month'],
-        tryevent['day'],tryevent['hour'],tryevent['minute'],
-        int(tryevent['second'])).timestamp()
-      trylat=float(tryevent['lat'])
-      trylon=float(tryevent['lon'])
 
       c=c+1
       if not c%1000:
         print('Collate event',c,'so far collated:',ncollated)
 
+      trymag=float(tryevent['mag'])
+      trystamp=int(datetime.datetime(tryevent['year'],tryevent['month'],
+        tryevent['day'],tryevent['hour'],tryevent['minute'],
+        int(tryevent['second'])).replace(tzinfo=datetime.timezone.utc).timestamp())
+
+      trylat=float(tryevent['lat'])
+      trylon=float(tryevent['lon'])
+
       for event in events:
-        if not checkloc(event,trylat,trylon):
-          continue
         if not checkmag(event,trymag):
           continue
+
         if not checkstamp(event,trystamp):
+          continue
+
+        if not checkloc(event,trylat,trylon):
           continue
 
         event['properties']['line_collated']=c
@@ -91,9 +100,10 @@ def collateEvents(events,tocollate):
 def checkmag(event,trymag):
     """ Compare if two magnitudes are within the allowed diff """
 
-    emag=event['properties']['mag']
-    magdiff=abs(float(emag)-trymag)
-    if magdiff<=ALLOWED_MAGDIFF:
+    eventmag=event['properties']['mag']
+    diff=abs(float(eventmag)-trymag)
+
+    if diff<=ALLOWED_MAGDIFF:
         return True
     else:
         return False
@@ -104,10 +114,10 @@ def checkstamp(event,trystamp):
 
     eventstamp=int(int(event['properties']['time'])/1000)
     diff=abs(eventstamp-trystamp)
-
     if diff<=ALLOWED_TIMEDIFF:
         return True
-    if diff<120:
+    if diff<60:
+        print(event)
         print('Possible match, diff=',diff)
 
     return False
