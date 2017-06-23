@@ -10,6 +10,7 @@ See https://github.com/usgs/libcomcat for details.
 
 import json
 import urllib.request
+import urllib.parse
 import re
 import datetime 
 
@@ -24,7 +25,7 @@ class Comcat:
         self.contents=None
         self.events=[]
 
-        url=Comcat.URLBASE+query
+        url=Comcat.URLBASE+'&'+urllib.parse.urlencode(query)
         print('Requesting:',url)
 
         try:
@@ -32,7 +33,7 @@ class Comcat:
         except:
           print('No data found (is ComCat down?)') 
           return
-       
+      
         try: 
           contents=json.loads(contents)
         except:
@@ -42,11 +43,13 @@ class Comcat:
         self.contents=contents
         if 'features' in contents:
           self.events=contents['features']
+        else:
+          self.events=contents
 
 
 class Events:
 
-    QUERY='format=geojson&producttype=dyfi&starttime=[START]&endtime=[END]'
+#    QUERY='format=quakeml&producttype=dyfi&starttime=[START]&endtime=[END]'
     EVENTPROPS = ['net','title','type','status','time','mag','cdi','felt','updated','detail'] 
 
     def __init__(self,startdate,enddate):
@@ -55,7 +58,13 @@ class Events:
       self.events=None
       for (startdate,enddate) in splitDates(startdate,enddate):
         print('Querying from',startdate,'to',enddate)
-        query=Events.QUERY.replace('[START]',startdate).replace('[END]',enddate)
+
+        query={
+          'format':'geojson',
+          'producttype':'dyfi',
+          'starttime':startdate,
+          'endtime':enddate
+        }
 
         events=Comcat(query).events
         if not events:
@@ -75,7 +84,7 @@ class Events:
           for prop in Events.EVENTPROPS:
             props[prop]=p[prop]
 
-          eventdata['properties']=props  
+          eventdata['properties']=props
           thisresults.append(eventdata)
 
         if(thisresults):
@@ -85,7 +94,8 @@ class Events:
       print('Got total',len(results),'results.')
       self.events=results
 
-    
+
+# XXX Not used by getEvents    
 class Event:
     
     QUERY='format=geojson&includesuperseded=[SUPERCEDED]&eventid=[EVENTID]'
@@ -100,6 +110,7 @@ class Event:
             
         query=query.replace('[SUPERCEDED]',superseded)
         contents=Comcat(query).contents
+        contents=json.loads(contents)
         self.contents=contents 
         if 'products' in contents['properties']:
           self.products=contents['properties']['products']
@@ -127,6 +138,7 @@ class Event:
             return 0
        
  
+# XXXX Not used by getEvents
 class Product:
     
     def __init__(self,rawdata):
@@ -184,6 +196,7 @@ def parseDyfiProps(props):
 
     return(props)
 
+
 def display(data):
     if not isinstance(data,dict):
         print('Cannot display non-dict data',data)
@@ -199,6 +212,15 @@ def display(data):
 
 
 def splitDates(start,end):
+  """ 
+
+    Used by Events class to take a multiyear start date and end date,
+    then split it into multiple years for querying Comcat multiple times.
+    Otherwise, querying Comcat with a large date range can result in
+    network timeouts.
+
+  """
+
   startyear=getYear(start)
   endyear=getYear(end)
    
@@ -223,6 +245,8 @@ def splitDates(start,end):
   return dates
 
 def getYear(date):
+  """ Used by splitDates to extract year from date string """
+
   if re.match('%d%d%d%d',date):
     return int(date)
   try:
@@ -234,40 +258,3 @@ def getYear(date):
     print('Invalid year',date)
     exit()
 
-
-if __name__=='__main__':
-
-    import sys
-    args=sys.argv
-    if len(args)<2:
-        print('Usage: %s eventid' % args[0])
-        exit()
-
-    evid=args[1]
-    print('Checking evid',evid)
-
-    event=Event(evid)
-    contents=event.contents
-
-    print('Type: ',contents['type'])
-    print('Id: ',contents['id'])
-    print('Geometry:')
-    print(contents['geometry'])
-
-    p=contents['properties']
-    print('Status:',p['status'])
-    products=p['products']
-
-    for key,val in products.items():
-      print('Product:',key)
-
-    exit()
-    products=event.DYFIProducts()
-    for product in products:
-        product.parse()
-
-        
-        
-    
-    
-                        
