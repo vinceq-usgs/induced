@@ -16,7 +16,7 @@ Users may also use the attached scripts to recreate the public component of the 
 
 (1) See Rennolet, Moschetti, Thompson, and Yeck, 2016. A Flatfile of Ground Motion Intensity Measurements from Induced Earthquakes in Oklahoma and Kansas. Earthquake Spectra (submitted)
 
-(2) For information on the UTM Grid see https://pubs.usgs.gov/fs/2001/0077/report.pdf
+(2) For an explanation of the UTM Grid see https://pubs.usgs.gov/fs/2001/0077/report.pdf
 
 This dataset can be found in the following locations:
 
@@ -34,7 +34,7 @@ Input files can be found in the 'input' directory.
 Input catalog
 ========
 
-dyfi.catalog.json: All events from ComCat with DYFI products from 2001 to 2016. GeoJSON format; each feature is an event located at the epicenter. This file is current as of the file creation date and will be obsolete as ComCat is updated. To update this file, see the Programs section below.
+catalog.json: All events from ComCat with DYFI products from 2001 to 2016. JSON format; each entry is an event. This file is current as of the file creation date and will be obsolete as ComCat is updated. To update, see the 'Programs' section below.
 
 Input polygon
 ==========
@@ -51,7 +51,7 @@ emm_c2_OK_KS.txt: a list of event origins used for the ongoing study from Mosche
 Output event list
 ==========
 
-events.geojson: this file (located in the output directory) contains the set of all events within the Kansas-Oklahoma area that comprise the DYFI Induced Dataset. Each GeoJSON entry contains origin data (epicentral coordinates, origin time, and magnitude) and the line that corresponds to the Moschetti list of events, if found. GeoJSON format. To recreate this file using updated data or with a different set of parameters, see the 'Programs' section below.
+output/dyfi.inducedevents.geojson: contains the set of all events within the Kansas-Oklahoma area that comprise the DYFI Induced Dataset. Each GeoJSON entry contains origin data (epicentral coordinates, origin time, and magnitude) and the line that corresponds to the Moschetti list of events, if found. GeoJSON format. To recreate this file using updated data or with a different set of parameters, see the 'Programs' section below.
 
 Aggregated output
 ==============
@@ -118,13 +118,11 @@ Programs
 
 All programs can be found in the bin directory. For detailed instructions on running these programs, use the -h flag.
 
-- create_input_catalog.py: Recreate the input catalog from the ComCat database.
+- makeEvents.py: Recreate the output catalog with custom parameters from the Comcat database or a custom input catalog. You may also update the included input catalog.
 
-- create_output_catalog.py: Recreate the output catalog with custom parameters.
+- makeAggregated.py: Recreate the aggregated DYFI dataset by pulling aggregated data from DYFI events in ComCat.
 
-- create_aggregated.py: Recreate the aggregated DYFI dataset by pulling aggregated data from DYFI events in ComCat.
-
-- create_entries.py: Recreate the raw entries from the DYFI database. (For DYFI operators only.)
+- makeEntries.py: Recreate the raw entries from the DYFI database. (For DYFI operators only.)
 
 LICENSE
 -------
