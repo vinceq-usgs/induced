@@ -1,19 +1,16 @@
 #! /usr/bin/env python3
 
-"""
+descriptiontext="""
 makeAggregated.py
 
-This script will recreate the aggregated intensity portion of the DYFI Induced Events Database. 
+This script will recreate the aggregated intensity portion of the 
+DYFI Induced Events Database. It requires a list of events 
+(default 'output/dyfi.inducedevents.geojson').
 
-This script has two modes:
+It will then poll the ComCat database for the data for each event
+to produce its output.
 
-1. You can download the aggregated files from a list of events (created via makeEvents.py) from the ComCat online catalog.
-
-2. If you have the individual entry files (created via makeEntries.py or downloaded from the DYFI operator), you can use those files as raw input to compute the aggregated intensities.
-
-Run with the -help flag to see options.
 """
-
 
 import os.path
 import json
@@ -27,70 +24,99 @@ from modules.comcat import Event,Product
 
 entryfiletemplate='entries/raw.%s.json'
 
-def getEventList(eventfile):
-    f=open(eventfile,'r')
-    results=json.load(f)
-    events=results['features']
+DEFAULT_1KM_DIR='../aggregated_1km'
+DEFAULT_10KM_DIR='../aggregated_10km'
+DEFAULT_CATALOG='../output/dyfi.inducedevents.geojson'
 
-    return events
-
-def getAggregated(event):
-    evid=event['id']
-    try:
-      event=Event(evid)
-    except:
-      print('Possible bad ID',evid)
-      return
-
-    productlist=event.getProductList('dyfi')
-    products=[]
-    try:
-      products.append(event.loadProduct('dyfi','dyfi_geo_1km'))
-      products.append(event.loadProduct('dyfi','dyfi_geo_10km'))
-      return products
-    except:
-      print('Must rerun',evid)
-      print(productlist)
-      return
-
-
-if __name__=='__main__':
-
-  parser=argparse.ArgumentParser(description='Create a DYFI aggregated intensity dataset.')
+def parseArgs():
+  parser=argparse.ArgumentParser(
+    description=descriptiontext,
+    formatter_class=argparse.RawDescriptionHelpFormatter)
 
   parser.add_argument('--output_1km', type=str,
-    default='../aggregated_1km',
-    help='Output directory. Default ../aggregated_1km')
+    default=DEFAULT_1KM_DIR,
+    help='Output directory. Default '+DEFAULT_1KM_DIR)
 
   parser.add_argument('--output_10km', type=str,
-    default='../aggregated_10km',
-    help='Output directory. Default ../aggregated_10km')
+    default=DEFAULT_10KM_DIR,
+    help='Output directory. Default '+DEFAULT_10KM_DIR)
 
-  parser.add_argument('--input',type=str,
-    default='../output/events.collated.geojson',
-    help='Specify directory of JSON file of input events. Default ../output/events.collated.geojson')
+  parser.add_argument('--input',type=argparse.FileType('r'),
+    default=DEFAULT_CATALOG,
+    help='Specify GeoJSON event catalog. Default '+DEFAULT_CATALOG)
 
   parser.add_argument('--entries',type=str,
     help='Specify directory of raw entry files. If not specified, download aggregated data from ComCat instead.')
 
-  args=parser.parse_args()
+  parser.add_argument('--redo',action='store_true',
+    help='Overwrite preexisting data')
+
+  return parser.parse_args()
+
+
+if __name__=='__main__':
+
+  args=parseArgs()
+  redo=args.redo
 
   if args.entries:
     print('--entries flag not yet implemented.')
     exit()
 
-  eventlist=getEventList(args.input)
-  print('Got',len(eventlist),'events from',args.input)
+  # First read the catalog to get a list of events to extract
+
+  try:
+    eventgeojson=json.load(args.input)
+    eventlist=eventgeojson['features']
+  except:
+    print('Could not read event catalog',args.input.name)
+    print('Possible malformed JSON, aborting.')
+    exit()
+
+  print('Got',len(eventlist),'events from',args.input.name)
+
+  # For each event, download the geocoded data (if needed)
 
   n=0
-  nsuccess=0
+  nloaded=0
   for event in eventlist:
     n+=1
-    entries=getAggregated(event)
-    if entries:
-      nsuccess+=1
+    evid=event['id'] 
+    try:
+      event=Event(evid)
+    except:
+      print('Could not get event information from',evid)
+      exit()
 
-    print('n:',n,'event:',event['id'],'so far:',nsuccess)
+    products=event.getProducts('dyfi')
+    if not products:
+      print('No product found (bad JSON?) for',evid)
+      continue
+
+    outfiles={
+      'dyfi_geo_1km.geojson':'%s/%s.%s.geojson' % (args.output_1km,evid,'dyfi_geo_1km'),
+      'dyfi_geo_10km.geojson':'%s/%s.%s.geojson' % (args.output_10km,evid,'dyfi_geo_10km')
+    }
+
+    for whichproduct in outfiles.keys():
+      outfile=outfiles[whichproduct] 
+      if (not redo) and os.path.isfile(outfile):
+        # File already exists, don't download again
+        continue
+
+      if whichproduct in products:
+        if event.saveFile(whichproduct,outfile):
+          nloaded+=1
+          continue
+  
+      dyficode=event.code
+      print('WARNING: Event',evid,'has no product',whichproduct)
+      print('Operator needs to rerun DYFI for event',dyficode)
+      print('DEBUG:')
+      print('./ciim.pl event=%s -fast' % dyficode)
+      break
+
+    print('n:',n,'event:',evid,'loaded:',nloaded)
 
         
 

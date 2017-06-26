@@ -17,9 +17,8 @@ import datetime
 class Comcat:
     """ Query Comcat online server and turn results into JSON """
 
-    SERVER = 'earthquake' #comcat server name
-    URLBASE = 'http://[SERVER].usgs.gov/fdsnws/event/1/query?'.replace('[SERVER]',SERVER)
-    ALLPRODURL = 'http://earthquake.usgs.gov/fdsnws/event/1/query?'
+    SERVER = 'earthquake.usgs.gov' #comcat server name
+    URLBASE = 'http://[SERVER]/fdsnws/event/1/query?'.replace('[SERVER]',SERVER)
 
     def __init__(self,query):
        
@@ -34,7 +33,8 @@ class Comcat:
         except:
           print('No data found (is ComCat down?)') 
           return
-      
+     
+        self.raw=contents 
         try: 
           contents=json.loads(contents)
         except:
@@ -96,41 +96,85 @@ class Events:
       self.events=results
 
 
-# XXX Not used by getEvents    
 class Event:
-    
-    QUERY='format=geojson&includesuperseded=[SUPERCEDED]&eventid=[EVENTID]'
+    """ Query ComCat server for a particular event ID """
 
     def __init__(self,evid,includeSuperseded=False):
-        query=Event.QUERY.replace('[EVENTID]',evid)
+        """ Begins with attributes 'evid','products','contents' """
+
         self.products=[]
+        self.evid=evid
+
         if includeSuperseded:
             superseded='true'
         else:
             superseded='false'
             
-        query=query.replace('[SUPERCEDED]',superseded)
+        query={
+          'format':'geojson',
+          'eventid':evid,
+          'includesuperseded':superseded
+        }
+
         contents=Comcat(query).contents
-        contents=json.loads(contents)
+        if not contents:
+          return
+
         self.contents=contents 
         if 'products' in contents['properties']:
           self.products=contents['properties']['products']
 
 
-    def getProductList(self,type):
+    def getProducts(self,type):
+      """ Gets the first set of products of a certain type. Adds 'code' and 'product' attributes """
+
+      self.product=None
+
       if type not in self.products:
-        print('Type',type,'not found')
+        print('Type',type,'not found for event',self.evid)
         return
 
       products=self.products[type]
-      print('There are',len(products),'products of type',type)
       if(len(products)>1):
-        print(json.dumps(products,indent=2))
+        print('WARNING: There are',len(products),'products of type',type)
+        print('Taking the first one as authoritative')
+
+      self.code=products[0]['code']
+      self.product=products[0]['contents']
+ 
+      # Now self.product has a dict keyed by product file
+      return self.product
+
+    def saveFile(self,productname,outfile):
+      """ Save a product. Requires getProducts to be run"""
+
+      if not self.product:
+        print('ERROR: Must run getProducts first')
         exit()
 
-      return list(products[0]['contents'].keys())
+      try:
+        pdata=self.product[productname]
+        url=pdata['url']
+        print('Downloading url',url)
+        contents=urllib.request.urlopen(url).read().decode('utf8')
+
+      except:
+        print('Could not save',productname,'(skipping)')
+        return
+
+      print('Writing to',outfile)
+      jdata=json.loads(contents)
+      if not jdata['features']:
+        return
+
+      # Prettyprint the JSON file
+ 
+      with open(outfile,'w') as f:
+        json.dump(json.loads(contents),f,indent=2)
+      return True
 
 
+    # XXXX Not used so far
     def felt(self):
         try:
             p=self.contents['properties']
@@ -189,6 +233,7 @@ class Product:
     
 # These are functions, not methods    
 
+# XXXX Not used
 def parseDyfiProps(props):
     for key in ['num-responses','numResp','maxmmi']:
         if key not in props:
@@ -198,6 +243,7 @@ def parseDyfiProps(props):
     return(props)
 
 
+# XXXX Not used
 def display(data):
     if not isinstance(data,dict):
         print('Cannot display non-dict data',data)
