@@ -82,6 +82,30 @@ if __name__=='__main__':
   for event in eventlist:
     n+=1
     evid=event['id'] 
+    if event['properties']['felt']<1:
+      continue
+
+    outfiles={
+      'dyfi_geo_1km.geojson':'%s/%s.%s.geojson' % (args.output_1km,evid,'dyfi_geo_1km'),
+      'dyfi_geo_10km.geojson':'%s/%s.%s.geojson' % (args.output_10km,evid,'dyfi_geo_10km')
+    }
+
+    redo=False
+    for whichproduct in outfiles.keys():
+      outfile=outfiles[whichproduct] 
+      if (not redo) and os.path.isfile(outfile):
+        # File already exists, don't download again
+        continue
+
+      else:
+        redo=True
+        break
+
+    if not redo:
+      continue
+
+    # From this point, we know we need to download this event from ComCat
+
     try:
       event=Event(evid)
     except:
@@ -93,22 +117,14 @@ if __name__=='__main__':
       print('No product found (bad JSON?) for',evid)
       continue
 
-    outfiles={
-      'dyfi_geo_1km.geojson':'%s/%s.%s.geojson' % (args.output_1km,evid,'dyfi_geo_1km'),
-      'dyfi_geo_10km.geojson':'%s/%s.%s.geojson' % (args.output_10km,evid,'dyfi_geo_10km')
-    }
-
     for whichproduct in outfiles.keys():
-      outfile=outfiles[whichproduct] 
-      if (not redo) and os.path.isfile(outfile):
-        # File already exists, don't download again
-        continue
-
       if whichproduct in products:
         if event.saveFile(whichproduct,outfile):
           nloaded+=1
           continue
-  
+ 
+      # If we reach this point then something is wrong
+ 
       dyficode=event.code
       print('WARNING: Event',evid,'has no product',whichproduct)
       print('Operator needs to rerun DYFI for event',dyficode)
