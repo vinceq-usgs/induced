@@ -1,0 +1,45 @@
+[
+  {
+    "name": "DYFI Induced Events Database",
+    "organization": "U.S. Geological Survey",
+    "description": "Dataset of Induced (Oklahoma-Kansas) Events Database"
+    "version": "1.0",
+    "status": "Stable",
+
+    "permissions": {
+      "usageType": "openSource",
+      "licenses": [
+        {
+          "name": "Public Domain, CC0-1.0",
+          "URL": "https://github.com/vinceq-usgs/induced/blob/master/LICENSE.md"
+        }
+      ]
+    },
+
+    "homepageURL": "https://github.com/vinceq-usgs/induced"
+    "downloadURL": "https://github.com/vinceq-usgs/induced/archive/master.zip",
+    "disclaimerURL": "https://github.com/vinceq-usgs/induced/induced/master/LICENSE.md",
+    "repositoryUrl": "https://github.com/vinceq-usgs/induced.git",
+    "vcs": "git",
+
+    "laborHours": null,
+
+    "tags": [
+      "dyfi","python","macroseismic","seismology","earthquake","quake","usgs"
+    ],
+
+    "languages": [
+      "English"
+    ],
+
+    "contact": {
+      "name": "Vince Quitoriano",
+      "email": "vinceq@usgs.gov"
+    },
+
+    "date": {
+      "metadataLastUpdated": "2017-10-03"
+    }
+  }
+]
+
