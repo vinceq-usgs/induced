@@ -1,5 +1,7 @@
 *_with_pii
 *.swp
+aggregated_1km/
+aggregated_10km/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

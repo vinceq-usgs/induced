@@ -4,15 +4,17 @@ DYFI INDUCED EVENTS DATABASE
 
 A dataset of DYFI intensity observations for the Oklahoma and Kansas area between 2001 and 2016.
 
-The goal of this project is to provide an observed intensity dataset that can be compared with the Oklahoma-Kansas Induced Earthquakes Database currently being developed(1). 
+The goals of this project are:
+
+1. To provide an observed intensity dataset that can be compared with the Oklahoma-Kansas Induced Earthquakes Database currently being developed(1). 
+
+2. To allow users to create their own DYFI dataset with their own event parameters (for example, different regions or time periods) using these tools as a template.
 
 Two datasets are included: 
 
 1. An aggregated dataset using publicly available aggregated data (in 1km and 10km blocks using the UTM (2)), and 
 
 2. The raw DYFI questionnaires for the OK-KS spatial boundary and date range, with Personally Identifiable Information (PII) redacted.
-
-Users may also use the attached scripts to recreate the public component of the database by downloading and collating publicly available data from the USGS ComCat database. Users may specify different event parameters (for example, different regions or time periods) and create a new DYFI dataset for their own use using public data.
 
 (1) See Rennolet, Moschetti, Thompson, and Yeck, 2016. A Flatfile of Ground Motion Intensity Measurements from Induced Earthquakes in Oklahoma and Kansas. Earthquake Spectra (submitted)
 
